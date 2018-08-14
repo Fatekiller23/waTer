@@ -5,6 +5,7 @@ import pandas as pd
 from abc import ABCMeta, abstractmethod
 
 from event import MarketEvent
+from queue import Queue
 
 
 
@@ -145,3 +146,11 @@ class HistoricCSVDataHandler(DataHandler):
                 if bar is not None:
                     self.latest_symbol_data[s].append(bar)
         self.events.put(MarketEvent())
+
+
+
+if __name__=="__main__":
+    event=Queue()
+    data_handler = HistoricCSVDataHandler(event,csv_dir='', symbol_list=['000001'])
+    data = data_handler.get_latest_bars('000001')
+    pass
