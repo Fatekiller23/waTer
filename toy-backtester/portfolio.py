@@ -4,14 +4,15 @@
 import datetime
 import numpy as np
 import pandas as pd
-import Queue
+from queue import Queue
 
 from abc import ABCMeta, abstractmethod
 from math import floor
 
 from event import FillEvent, OrderEvent
 from performance import create_sharpe_ratio, create_drawdowns
-
+from data import HistoricCSVDataHandler
+from event import MarketEvent
 
 class Portfolio(object):
     """
@@ -212,8 +213,8 @@ class NaivePortfolio(Portfolio):
 
         symbol = signal.symbol
         direction = signal.signal_type
-        strength = signal.strength
-
+        # strength = signal.strength
+        strength = 2
         mkt_quantity = floor(100 * strength)
         cur_quantity = self.current_positions[symbol]
         order_type = 'MKT'
@@ -268,3 +269,17 @@ class NaivePortfolio(Portfolio):
                  ("Max Drawdown", "%0.2f%%" % (max_dd * 100.0)),
                  ("Drawdown Duration", "%d" % dd_duration)]
         return stats
+
+
+if __name__ == '__main__':
+
+    event=Queue()
+    bars = HistoricCSVDataHandler(event,csv_dir='', symbol_list=['000001'])
+
+    bars.update_bars()
+
+
+    market = MarketEvent()
+
+
+    portflio = NaivePortfolio(bars=bars, events=event, start_date='2018-05-01')
