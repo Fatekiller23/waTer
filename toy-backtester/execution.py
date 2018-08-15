@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-import Queue
+from queue import Queue
 
 from abc import ABCMeta, abstractmethod
 
@@ -65,5 +65,5 @@ class SimulatedExecutionHandler(ExecutionHandler):
         """
         if event.type == 'ORDER':
             fill_event = FillEvent(datetime.datetime.utcnow(), event.symbol,
-                                   'ARCA', event.quantity, event.direction, None)
+                                   'ARCA', event.quantity, event.direction, 0.003,None)
             self.events.put(fill_event)

@@ -2,11 +2,13 @@
 import datetime
 import numpy as np
 import pandas as pd
-import Queue
+from queue import Queue
 
 from abc import ABCMeta, abstractmethod
 
-from event import SignalEvent
+from event import SignalEvent, MarketEvent
+
+from data import HistoricCSVDataHandler
 
 
 
@@ -84,9 +86,22 @@ class BuyAndHoldStrategy(Strategy):
         if event.type == 'MARKET':
             for s in self.symbol_list:
                 bars = self.bars.get_latest_bars(s, N=1)
-                if barsr is not None and bas != []:
+                if bars is not None and bars != []:
                     if self.bought[s] == False:
                         # (Symbol, Datetime, Type = LONG, SHORT or EXIT)
                         signal = SignalEvent(bars[0][0], bars[0][1], 'LONG')
                         self.events.put(signal)
                         self.bought[s] = True
+
+
+if __name__ == '__main__':
+    event=Queue()
+    bars = HistoricCSVDataHandler(event,csv_dir='', symbol_list=['000001'])
+
+    bars.update_bars()
+
+    strategy = BuyAndHoldStrategy(bars, event)
+
+    market = MarketEvent()
+
+    strategy.calculate_signals(market)

@@ -90,7 +90,7 @@ class HistoricCSVDataHandler(DataHandler):
             self.symbol_data[s] = pd.io.parsers.read_csv(
                                         os.path.join(self.csv_dir, '%s.csv' % s),
                                         header=0, index_col=0, 
-                                        names=['datetime','open','low','high','close','volume','oi']
+                                        names=['date','open','close','high','low','volume','code']
                                     )
 
             # Combine the index to pad forward values
@@ -110,11 +110,12 @@ class HistoricCSVDataHandler(DataHandler):
     def _get_new_bar(self, symbol):
         """
         Returns the latest bar from the data feed as a tuple of 
-        (sybmbol, datetime, open, low, high, close, volume).
+        (sybmbol, datetime, open, close, high, low, volume,).
         """
+
         for b in self.symbol_data[symbol]:
-            yield tuple([symbol, datetime.datetime.strptime(b[0], '%Y-%m-%d %H:%M:%S'), 
-                        b[1][0], b[1][1], b[1][2], b[1][3], b[1][4]])
+            yield tuple([symbol, b[1][0],
+                        b[1][1], b[1][2], b[1][3], b[1][4], b[1][5]])
 
 
 
@@ -139,7 +140,7 @@ class HistoricCSVDataHandler(DataHandler):
         """
         for s in self.symbol_list:
             try:
-                bar = self._get_new_bar(s).next()
+                bar = next(self._get_new_bar(s))
             except StopIteration:
                 self.continue_backtest = False
             else:
@@ -152,5 +153,6 @@ class HistoricCSVDataHandler(DataHandler):
 if __name__=="__main__":
     event=Queue()
     data_handler = HistoricCSVDataHandler(event,csv_dir='', symbol_list=['000001'])
+    data_handler.update_bars()
     data = data_handler.get_latest_bars('000001')
     pass
