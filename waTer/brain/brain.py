@@ -65,28 +65,6 @@ class Brain:
             thread.start()
             i += 1
 
-    def give_a_test(self):
-        """
-        发送一个test指令，每个线程回复一条消息
-        所有线程都完好，就是正常的。
-        :return: 
-        """
-        # i really do things for fun.
-        test_word = "good?"
-        for one_queue in self.queue_set:
-            one_queue.put(test_word)
-
-        res = []
-        a = self.listen_channel.qsize()
-        pass
-        # while not self.listen_channel.empty():
-        #     res.append(self.listen_channel.get())
-        #     time.sleep(3)
-        # if len(res) == 5:
-        #     return "wonderful"
-        # else:
-        #     return "some dog dead !"
-
     def go(self):
         """
         运行整个动作
@@ -95,4 +73,12 @@ class Brain:
 
         self.load()
         while True:
-            time.sleep(1)
+            time.sleep(5)
+
+    def give_a_test(self):
+        """
+        发送一个test指令，每个线程回复一条消息
+        所有线程都完好，就是正常的。
+        :return: 
+        """
+        raise NotImplementedError

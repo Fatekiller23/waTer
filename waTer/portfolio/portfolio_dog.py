@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
-
+from logbook import Logger
 from waTer.base.dog import BaseDog
-
+log = Logger('portfolio')
 
 class PortfolioDog(BaseDog):
     def __init__(self, listen_queue, reply_queue):
@@ -11,6 +11,7 @@ class PortfolioDog(BaseDog):
         self.reply_queue = reply_queue
         pass
 
-    def run(self,):
-            print('portfolio')
+    def run(self):
+        log.debug('hi')
+        while True:
             time.sleep(1)

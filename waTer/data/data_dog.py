@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import time
-
+from logbook import Logger
 from waTer.base.dog import BaseDog
 
+log = Logger('data')
 
 class DataDog(BaseDog):
     def __init__(self, listen_queue, reply_queue):
@@ -11,8 +12,7 @@ class DataDog(BaseDog):
         self.listen_queue = listen_queue
         self.reply_queue = reply_queue
 
-    def run(self,):
-
+    def run(self):
+        log.debug('hi')
         while True:
-            print('data!')
             time.sleep(1)

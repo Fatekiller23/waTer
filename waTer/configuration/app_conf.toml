@@ -1,0 +1,23 @@
+#log configuration
+[log]
+    # boolean type, if true ,the debug information will print sys.stdout.
+    # if false, the debug information will print to fill we specified.
+    debug = true
+
+    # the derectory in which our log file reside.
+    logfile = "logs/watchman_debug.log"
+
+    # backup log_fie maximum number is 5.
+    backup_count = 5
+
+    # A log files maximum size.if size exceed this, bakcup it.
+    max_size = 10240
+
+    # determine the debug level you want to print.
+    # notset < debug < info < warning < error < critical
+    level = 'debug'
+
+    # format your debug information.
+    # for more infomation, please checkout this site:
+    #       http://logbook.readthedocs.io/en/stable/
+    format_string = '({record.time:%m-%d %H:%M:%S}){record.level_name},channel:{record.channel},line_{record.lineno}: {record.message}'
