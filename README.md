@@ -20,6 +20,6 @@ Like water, stick with one goal, be reactive with everything.
 python（逻辑） + rust（性能）
 
 
-## 技术架构
+## 数据流与组件交互
 
-没想好。
+![image](https://github.com/Fatekiller23/waTer/blob/master/stuff/waTer-structure.jpg)
