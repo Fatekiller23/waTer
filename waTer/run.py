@@ -1,0 +1,6 @@
+# -*- coding: utf-8 -*-
+from brain.brain import Brain
+
+if __name__ == '__main__':
+    brain = Brain()
+    brain.go()
