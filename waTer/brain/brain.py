@@ -8,7 +8,9 @@ from waTer.data.data_dog import DataDog
 from waTer.execution.execution_dog import ExecuteDog
 from waTer.portfolio.portfolio_dog import PortfolioDog
 from waTer.strategy.strategy_dog import StrategyDog
+from logbook import Logger
 
+log = Logger('brain')
 
 class Brain:
     """
@@ -70,10 +72,37 @@ class Brain:
         运行整个动作
         :return: 
         """
-
+        # 加载启动相应工作线程
         self.load()
+
+        # coordinate events from listen queue.
+
         while True:
-            time.sleep(5)
+            if not self.listen_channel.empty():
+                # get event
+                event = self.listen_channel.get()
+
+                # discern event type
+                who_s = self.who_s_meat(event)
+
+                # to corresponding dog
+                who_s.put(event)
+
+            else:
+                log.debug('no event, wating!')
+                time.sleep(1)
+
+    def who_s_meat(self, event):
+
+        type_dict = {
+            'B': self.to_broker_dog,
+            'O': self.to_execution_dog,
+            'S': self.to_portfolio_dog,
+            'F': self.to_portfolio_dog,
+            'M': self.to_strategy_dog,
+            'D': self.to_data_dog}
+
+        return type_dict[event.simple_type]
 
     def give_a_test(self):
         """
