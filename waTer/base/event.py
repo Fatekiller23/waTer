@@ -13,12 +13,17 @@ class MarketEvent(Event):
     corresponding bars.
     """
 
-    def __init__(self):
+    def __init__(self, bar_data):
         """
         Initialises the MarketEvent.
         """
         self.type = 'MARKET'
         self.simple_type = 'M'
+        self.bar_data = bar_data
+
+    def __repr__(self):
+
+        return "MarketEvent"
 
 
 class SignalEvent(Event):

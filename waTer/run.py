@@ -12,9 +12,10 @@ def start_app():
     conf = get_conf('configuration/app_conf.toml')
     log_conf = conf['log']
     setup_logger(log_conf)
+    return conf
 
 
 if __name__ == '__main__':
-    start_app()
-    brain = Brain()
+    conf = start_app()
+    brain = Brain(conf)
     brain.go()

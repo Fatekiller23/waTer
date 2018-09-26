@@ -21,3 +21,7 @@
     # for more infomation, please checkout this site:
     #       http://logbook.readthedocs.io/en/stable/
     format_string = '({record.time:%m-%d %H:%M:%S}){record.level_name},channel:{record.channel},line_{record.lineno}: {record.message}'
+
+
+[data]
+    token = ''

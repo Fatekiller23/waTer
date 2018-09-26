@@ -3,12 +3,13 @@ import time
 from queue import Queue
 from threading import Thread, Event
 
+from logbook import Logger
+
 from waTer.broker_api.backtest.broker_dog import BrokerDog
 from waTer.data.data_dog import DataDog
 from waTer.execution.execution_dog import ExecuteDog
 from waTer.portfolio.portfolio_dog import PortfolioDog
 from waTer.strategy.strategy_dog import StrategyDog
-from logbook import Logger
 
 log = Logger('brain')
 
@@ -17,18 +18,19 @@ class Brain:
     这个类加载所有需要线程，并完成一次通知工作。
     """
 
-    def __init__(self):
+    def __init__(self, conf):
         # listen barks(event) from dog. ^^
         self.listen_channel = Queue()
 
         # tell commands(event) to dog.  ^^
         self.queue_set = [Queue(), Queue(), Queue(), Queue(), Queue()]
-
         self.to_data_dog = self.queue_set[0]
         self.to_strategy_dog = self.queue_set[1]
         self.to_portfolio_dog = self.queue_set[2]
         self.to_execution_dog = self.queue_set[3]
         self.to_broker_dog = self.queue_set[4]
+
+        self.conf = conf
 
         pass
 
@@ -40,7 +42,7 @@ class Brain:
 
         # init dogs
         broker_dog = BrokerDog(self.to_broker_dog, self.listen_channel)
-        data_dog = DataDog(self.to_data_dog, self.listen_channel)
+        data_dog = DataDog(self.to_data_dog, self.listen_channel, self.conf['data'])
         execute_dog = ExecuteDog(self.to_execution_dog, self.listen_channel)
         portfolio_dog = PortfolioDog(self.to_portfolio_dog, self.listen_channel)
         strategy_dog = StrategyDog(self.to_strategy_dog, self.listen_channel)
@@ -53,7 +55,9 @@ class Brain:
         strategy_dog.name = 'strategy'
 
         # init work threads set
-        workers = [data_dog, strategy_dog, portfolio_dog, execute_dog, broker_dog]
+        # workers = [data_dog, strategy_dog, portfolio_dog, execute_dog, broker_dog]
+
+        workers = [data_dog]
 
         # start,stop event
         self.start_evt = start_evt = Event()
@@ -86,11 +90,13 @@ class Brain:
                 who_s = self.who_s_meat(event)
 
                 # to corresponding dog
+                log.debug(event)
                 who_s.put(event)
 
             else:
                 log.debug('no event, wating!')
-                time.sleep(1)
+
+            time.sleep(1)
 
     def who_s_meat(self, event):
 
