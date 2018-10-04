@@ -3,30 +3,34 @@ import time
 from queue import Queue
 from threading import Thread, Event
 
+from logbook import Logger
+
 from waTer.broker_api.backtest.broker_dog import BrokerDog
 from waTer.data.data_dog import DataDog
 from waTer.execution.execution_dog import ExecuteDog
 from waTer.portfolio.portfolio_dog import PortfolioDog
 from waTer.strategy.strategy_dog import StrategyDog
 
+log = Logger('brain')
 
 class Brain:
     """
     这个类加载所有需要线程，并完成一次通知工作。
     """
 
-    def __init__(self):
+    def __init__(self, conf):
         # listen barks(event) from dog. ^^
         self.listen_channel = Queue()
 
         # tell commands(event) to dog.  ^^
         self.queue_set = [Queue(), Queue(), Queue(), Queue(), Queue()]
-
         self.to_data_dog = self.queue_set[0]
         self.to_strategy_dog = self.queue_set[1]
         self.to_portfolio_dog = self.queue_set[2]
         self.to_execution_dog = self.queue_set[3]
         self.to_broker_dog = self.queue_set[4]
+
+        self.conf = conf
 
         pass
 
@@ -38,7 +42,7 @@ class Brain:
 
         # init dogs
         broker_dog = BrokerDog(self.to_broker_dog, self.listen_channel)
-        data_dog = DataDog(self.to_data_dog, self.listen_channel)
+        data_dog = DataDog(self.to_data_dog, self.listen_channel, self.conf['data'])
         execute_dog = ExecuteDog(self.to_execution_dog, self.listen_channel)
         portfolio_dog = PortfolioDog(self.to_portfolio_dog, self.listen_channel)
         strategy_dog = StrategyDog(self.to_strategy_dog, self.listen_channel)
@@ -51,7 +55,9 @@ class Brain:
         strategy_dog.name = 'strategy'
 
         # init work threads set
-        workers = [data_dog, strategy_dog, portfolio_dog, execute_dog, broker_dog]
+        # workers = [data_dog, strategy_dog, portfolio_dog, execute_dog, broker_dog]
+
+        workers = [data_dog]
 
         # start,stop event
         self.start_evt = start_evt = Event()
@@ -65,34 +71,49 @@ class Brain:
             thread.start()
             i += 1
 
+    def go(self):
+        """
+        运行整个动作
+        :return: 
+        """
+        # 加载启动相应工作线程
+        self.load()
+
+        # coordinate events from listen queue.
+
+        while True:
+            if not self.listen_channel.empty():
+                # get event
+                event = self.listen_channel.get()
+
+                # discern event type
+                who_s = self.who_s_meat(event)
+
+                # to corresponding dog
+                log.debug(event)
+                who_s.put(event)
+
+            else:
+                log.debug('no event, wating!')
+
+            time.sleep(1)
+
+    def who_s_meat(self, event):
+
+        type_dict = {
+            'B': self.to_broker_dog,
+            'O': self.to_execution_dog,
+            'S': self.to_portfolio_dog,
+            'F': self.to_portfolio_dog,
+            'M': self.to_strategy_dog,
+            'D': self.to_data_dog}
+
+        return type_dict[event.simple_type]
+
     def give_a_test(self):
         """
         发送一个test指令，每个线程回复一条消息
         所有线程都完好，就是正常的。
         :return: 
         """
-        # i really do things for fun.
-        test_word = "good?"
-        for one_queue in self.queue_set:
-            one_queue.put(test_word)
-
-        res = []
-        a = self.listen_channel.qsize()
-        pass
-        # while not self.listen_channel.empty():
-        #     res.append(self.listen_channel.get())
-        #     time.sleep(3)
-        # if len(res) == 5:
-        #     return "wonderful"
-        # else:
-        #     return "some dog dead !"
-
-    def go(self):
-        """
-        运行整个动作
-        :return: 
-        """
-
-        self.load()
-        while True:
-            time.sleep(1)
+        raise NotImplementedError
